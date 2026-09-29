@@ -13,29 +13,23 @@ import {
 } from '@nestjs/common';
 import { User } from './user.entity';
 import { Role } from './enums/role.enum';
+import { UsersService } from './users.service';
 
 // http://10.20.30.40:3001/users
 @Controller('users')
 export class UsersController {
+  constructor(private readonly service: UsersService) {}
+
   // POST -> http://10.20.30.40:3001/users
   @Post()
-  create(@Body() user: User): User {
-    // Здесь будет обращение к сервису,
-    // но пока пишем здесь тренировочный код, который
-    // позволит нам протестировать контроллер в реальном времени
-    console.log('Saved user:', user);
-    user.id = 7;
-    return user;
+  async create(@Body() user: User): Promise<User> {
+    return this.service.create(user);
   }
 
   // GET 10.20.30.40:3000/users
   @Get()
-  getAll(): User[] {
-    const user1: User = new User();
-    user1.name = 'Vasya';
-    const user2: User = new User();
-    user2.name = 'Petya';
-    return [user1, user2];
+  async getAll(): Promise<User[]> {
+    return this.service.getAllActiveUsers();
   }
 
   // GET 10.20.30.40:3000/users?id=7 -> '7'
