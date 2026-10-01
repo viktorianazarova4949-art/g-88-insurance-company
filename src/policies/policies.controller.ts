@@ -7,40 +7,60 @@ import {
   HttpStatus,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
+  Put,
 } from '@nestjs/common';
-import { Policy } from './policy.entity';
-import { InsuranceType } from './enums/insurance-type.enum';
+import { PoliciesService } from './policies.service';
+import { PolicySaveDto } from './dto/policy.save-dto';
+import { PolicyDto } from './dto/policy.dto';
+import { Roles } from '../auth/types/auth.decorators';
+import { Role } from '../users/enums/role.enum';
 
 @Controller('policies')
 export class PoliciesController {
+  constructor(private readonly service: PoliciesService) {}
+
+  @Roles(Role.ADMIN, Role.AGENT)
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  create(@Body() policy: Policy): Policy {
-    console.log('Saved policy:', policy);
-    return policy;
+  async create(@Body() policy: PolicySaveDto): Promise<PolicyDto> {
+    return this.service.create(policy);
   }
 
+  @Roles(Role.ADMIN, Role.AGENT)
   @Get()
-  getAll(): Policy[] {
-    const policy1: Policy = new Policy();
-    policy1.type = InsuranceType.CASCO;
-    const policy2: Policy = new Policy();
-    policy2.type = InsuranceType.LIABILITY;
-    return [policy1, policy2];
+  async getAll(): Promise<PolicyDto[]> {
+    return this.service.getAllActivePolicies();
   }
 
+  @Roles(Role.ADMIN, Role.AGENT)
   @Get(':id')
-  getById(@Param('id', ParseIntPipe) id: number): Policy {
-    console.log('Id:', id);
-    const policy: Policy = new Policy();
-    policy.type = InsuranceType.CASCO;
-    return policy;
+  async getById(@Param('id', ParseIntPipe) id: number): Promise<PolicyDto> {
+    return this.service.getActivePolicyById(id);
   }
 
+  @Roles(Role.ADMIN)
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  deleteById(@Param('id', ParseIntPipe) id: number): void {
-    console.log('Deleted id:', id);
+  async deleteById(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    await this.service.deleteById(id);
+  }
+
+  @Roles(Role.ADMIN)
+  @Patch(':id/restore')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async restoreById(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    await this.service.restoreById(id);
+  }
+
+  @Roles(Role.ADMIN, Role.AGENT)
+  @Put(':policyId/add-car/:carId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async addCar(
+    @Param('policyId', ParseIntPipe) policyId: number,
+    @Param('carId', ParseIntPipe) carId: number,
+  ): Promise<void> {
+    await this.service.addActiveCarToActivePolicy(policyId, carId);
   }
 }
