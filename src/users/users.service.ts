@@ -11,12 +11,17 @@ import { EntityNotFoundException } from '../exceptions/types/entity-not-found.ex
 import { EntityUpdateException } from '../exceptions/types/entity-update.exception';
 import * as bcrypt from 'bcrypt';
 import { UserIsNotConfirmedException } from '../exceptions/types/user-is-not-confirmed.exception';
+import { EmailService } from '../email/email.service';
+import { RegistrationException } from '../exceptions/types/registration.exception';
+import { ConfirmationCodesService } from '../confirmation-codes/confirmation-codes.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly repository: UsersRepository,
     private readonly mapper: UsersMapper,
+    private readonly emailService: EmailService,
+    private readonly confirmationCodesService: ConfirmationCodesService,
   ) {}
 
   async create(saveDto: UserSaveDto): Promise<UserDto> {
@@ -110,5 +115,34 @@ export class UsersService {
     }
 
     return user;
+  }
+
+  async register(registrationDto: UserSaveDto): Promise<void> {
+    const email: string = registrationDto.email;
+    let user: User | null = await this.repository.findByEmail(email);
+
+    if (!user) {
+      user = new User();
+      user.email = email;
+      user.role = Role.CUSTOMER;
+      user.active = false;
+    } else if (user.active) {
+      throw new RegistrationException(`Email ${email} already in use`);
+    }
+
+    user.password = await bcrypt.hash(registrationDto.password, 10);
+    user.name = registrationDto.name;
+
+    await this.repository.save(user);
+
+    await this.emailService.sendConfirmationEmail(user);
+  }
+
+  async confirmRegistration(codeValue: string): Promise<void> {
+    const user: User =
+      await this.confirmationCodesService.validateCodeAndGetUser(codeValue);
+
+    user.active = true;
+    await this.repository.save(user);
   }
 }

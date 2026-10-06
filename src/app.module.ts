@@ -7,6 +7,10 @@ import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/guards/auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
+import { ConfirmationCodesModule } from './confirmation-codes/confirmation-codes.module';
+import { EmailModule } from './email/email.module';
+import { ConfigModule } from '@nestjs/config';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -14,6 +18,9 @@ import { RolesGuard } from './auth/guards/roles.guard';
     CarsModule,
     PoliciesModule,
     AuthModule,
+    ConfirmationCodesModule,
+    EmailModule,
+    AiModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
@@ -23,6 +30,9 @@ import { RolesGuard } from './auth/guards/roles.guard';
       database: 'g_88_insurance_company',
       autoLoadEntities: true,
       synchronize: true,
+    }),
+    ConfigModule.forRoot({
+      isGlobal: true,
     }),
   ],
   providers: [

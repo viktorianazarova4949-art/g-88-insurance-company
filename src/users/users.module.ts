@@ -5,10 +5,16 @@ import { User } from './user.entity';
 import { UsersService } from './users.service';
 import { UsersRepository } from './users.repository';
 import { UsersMapper } from './dto/users.mapper';
+import { EmailModule } from '../email/email.module';
+import { ConfirmationCodesModule } from '../confirmation-codes/confirmation-codes.module';
 
 @Module({
   controllers: [UsersController],
-  imports: [TypeOrmModule.forFeature([User])],
+  imports: [
+    TypeOrmModule.forFeature([User]),
+    EmailModule,
+    ConfirmationCodesModule,
+  ],
   providers: [UsersService, UsersRepository, UsersMapper],
   exports: [UsersService, UsersMapper],
 })

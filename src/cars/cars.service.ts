@@ -87,7 +87,7 @@ export class CarsService {
     const car: Car = await this.getActiveEntityById(carId);
     const owner: User = await this.userService.getActiveEntityById(ownerId);
 
-    if (car.owner.id === owner.id) {
+    if (car.owner?.id === owner.id) {
       throw new EntityUpdateException(
         `User id ${ownerId} is already owner of the car id ${carId}`,
       );
