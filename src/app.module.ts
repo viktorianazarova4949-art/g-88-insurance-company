@@ -11,6 +11,8 @@ import { ConfirmationCodesModule } from './confirmation-codes/confirmation-codes
 import { EmailModule } from './email/email.module';
 import { ConfigModule } from '@nestjs/config';
 import { AiModule } from './ai/ai.module';
+import { IngestionModule } from './ingestion/ingestion.module';
+import { VectorStorageModule } from './vector-strage/vector-storage.module';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { AiModule } from './ai/ai.module';
     ConfirmationCodesModule,
     EmailModule,
     AiModule,
+    IngestionModule,
+    VectorStorageModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',

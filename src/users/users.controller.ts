@@ -48,6 +48,7 @@ export class UsersController {
   // GET 10.20.30.40:3000/users?id=7 -> '7'
   // GET 10.20.30.40:3000/users/7 - предпочтительный подход для id
   @Roles(Role.ADMIN, Role.AGENT)
+  //@Public()
   @Get(':id')
   @ApiOkResponse({
     type: UserDto,
