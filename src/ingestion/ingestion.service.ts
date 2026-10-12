@@ -16,11 +16,16 @@ export class IngestionService {
 
   async ingest(file: Express.Multer.File): Promise<void> {
     // прочитать текст из переданного файла
+
     const text: string = this.txtExtractor.extract(file.buffer);
     // очистить файл от мусора (лишние пробелы)
+
     const cleanedText: string = this.cleanService.cleanText(text);
-    // разбить очищенный текст на чанки (пока заглушка)
-    const chunks: string[] = this.chunkingService.getChunks(cleanedText);
+    // разбить очищенный текст на чанки
+
+    const chunks: string[] =
+      this.chunkingService.chunkBySizeWithOverlap(cleanedText);
+
     // полученные чанки передать в storageService для сохранения в БД
     await this.storageService.saveToDb(chunks);
   }
