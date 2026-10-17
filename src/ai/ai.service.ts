@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AiChatRequestDto } from './dto/ai-chat-request.dto';
+import { AiChatRequestDto } from '../chat/dto/ai-chat-request.dto';
 import { GeminiClient } from './clients/gemini.client';
 import { OpenAiClient } from './clients/openai.client';
 import { ConfigService } from '@nestjs/config';

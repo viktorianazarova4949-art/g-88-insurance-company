@@ -25,6 +25,7 @@ import { VectorStorageModule } from './vector-strage/vector-storage.module';
     AiModule,
     IngestionModule,
     VectorStorageModule,
+    CarsModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
