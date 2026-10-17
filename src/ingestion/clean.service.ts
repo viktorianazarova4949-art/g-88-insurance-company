@@ -3,7 +3,55 @@ import { Injectable } from '@nestjs/common';
 @Injectable()
 export class CleanService {
   cleanText(text: string): string {
+    text = this.normalizeLineEndings(text);
+    text = this.collapseSpaces(text);
+    text = this.removeCompanyName(text);
+    text = this.removeCopyright(text);
+    text = this.removePdfPageMarkers(text);
+    text = this.removeRusPageNumbers(text);
+    text = this.removeEngPageNumbers(text);
+    text = this.removeHorizontalLines(text);
+    text = this.collapseEmptyLines(text);
+
+    return text;
+  }
+
+  //приведения не стандартных строк в стандартные
+  private normalizeLineEndings(text: string): string {
+    return text.replace(/\r\n?/g, '\n');
+  }
+
+  //схлопывает обычные пробелы
+  private collapseSpaces(text: string): string {
     return text.replace(/ +/g, ' ').trim();
-    // убрали пробелы в нутри). с наружи предложения
+  }
+
+  private removeCompanyName(text: string): string {
+    return text.replace(/^\s*europrotect insurance\s*$/gim, '');
+  }
+
+  private removeCopyright(text: string): string {
+    return text.replace(/^\s*©\s*europrotect insurance\s*$/gim, '');
+  }
+
+  private removePdfPageMarkers(text: string): string {
+    // -- 2 of 4 --
+    return text.replace(/^\s*--\s*\d+\s*of\s*\d+\s*--\s*$/gim, '');
+  }
+
+  private removeRusPageNumbers(text: string): string {
+    return text.replace(/^\s*страница\s*\d+\s*$/gim, '');
+  }
+
+  private removeEngPageNumbers(text: string): string {
+    return text.replace(/^\s*—\s*page\s*\d+\s*—\s*$/gim, '');
+  }
+
+  private removeHorizontalLines(text: string): string {
+    return text.replace(/^\s*—+\s*$/gm, '');
+  }
+// удалить лишние переносы строк
+  private collapseEmptyLines(text: string): string {
+    return text.replace(/\n{3,}/g, '\n\n');
   }
 }
