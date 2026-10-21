@@ -19,12 +19,12 @@ export class AiService {
     );
   }
 
-  async generateResponse(chatRequestDto: AiChatRequestDto): Promise<string> {
+  async generateResponse(prompt:string): Promise<string> {
     switch (this.primaryGenerationProvider) {
       case 'openai':
-        return this.openAiClient.generateContent(chatRequestDto.message);
+        return this.openAiClient.generateContent(prompt);
       case 'google':
-        return this.geminiClient.generateContent(chatRequestDto.message);
+        return this.geminiClient.generateContent(prompt);
       default:
         throw new ConfigurationException(
           `${this.primaryGenerationProvider} AI provider is not supported`

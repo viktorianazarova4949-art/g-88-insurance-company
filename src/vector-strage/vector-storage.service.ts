@@ -15,9 +15,8 @@ export class VectorStorageService {
     this.topKValue = Number(this.configService.getOrThrow('TOP_K_VALUE'));
   }
 
-  async saveToDb(texts: string[]): Promise<void> {
-    const documents: Document[] = this.mapTextsToDocuments(texts);
-    await this.vectorStore.addDocuments(documents);
+  async saveToDb(chunks: Document[]): Promise<void> {
+    await this.vectorStore.addDocuments(chunks);
   }
 
   async getRelevantChunks(request: string): Promise<string[]> {
@@ -25,11 +24,7 @@ export class VectorStorageService {
       await this.vectorStore.similaritySearch(request, this.topKValue);
     return this.mapDocumentsToTexts(result);
   }
-//TEXT=>DOKUMENT
-  private mapTextsToDocuments(texts: string[]): Document[] {
-    return texts.map((t: string): Document => new Document({ pageContent: t }));
-  }
-//DOKUMENT=>TEXT
+
   private mapDocumentsToTexts(documents: DocumentInterface[]): string[] {
     return documents.map((d: DocumentInterface): string => d.pageContent);
   }

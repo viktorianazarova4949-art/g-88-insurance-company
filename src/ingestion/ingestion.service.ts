@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { VectorStorageService } from '../vector-strage/vector-storage.service';
-import { TxtExtractor } from './extractors/txt.extractor';
 import { CleanService } from './clean.service';
 import { ChunkingService } from './chunking.service';
 import { MultiformatExtractor } from './extractors/multiformat.extractor';
-
+import { Document } from 'langchain';
 
 @Injectable()
 export class IngestionService {
@@ -17,17 +16,22 @@ export class IngestionService {
 
   async ingest(file: Express.Multer.File): Promise<void> {
     // прочитать текст из переданного файла
+    const pages: string[] = await this.multiformatExtractor.extract(file);
 
-    const text: string = await this.multiformatExtractor.extract(file);
-    // очистить файл от мусора (лишние пробелы)
+    // // очистить файл от мусора (лишние пробелы)
+    const cleanedPages: string[] = this.cleanService.cleanTexts(pages);
 
-    const cleanedText: string = this.cleanService.cleanText(text);
-    // разбить очищенный текст на чанки
+   // console.log(cleanedPages);
 
-    const chunks: string[] =
-      this.chunkingService.chunkBySizeWithOverlap(cleanedText);
+    // // разбить очищенный текст на чанки
+    const chunks: Document[] = this.chunkingService.chunkBySizeWithOverlap(
+      cleanedPages,
+      file.originalname
+    );
 
-    // полученные чанки передать в storageService для сохранения в БД
+    //console.log(chunks);
+
+    // // полученные чанки передать в storageService для сохранения в БД
     await this.storageService.saveToDb(chunks);
   }
 }

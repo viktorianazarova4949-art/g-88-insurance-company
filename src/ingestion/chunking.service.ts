@@ -1,13 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ConfigurationException } from '../exceptions/types/configuration.exception';
+import { Document } from 'langchain';
 
 @Injectable()
 export class ChunkingService {
   constructor(private readonly configService: ConfigService) {}
-  //getChunks(text: string): string[] {
-  // return [text];
-  // } заглушка
+
+  chunkBySentences(text: string): string[] {
+    return text.split(/(?<=[.!?])(?: |\r?\n)+/);
+  }
+
+  chunkByParagraphs(text: string): string[] {
+    return text.split(/(?:\r?\n){2,}/);
+  }
 
   chunkBySize(text: string): string[] {
     const chunkSize: number = this.getChunkSize();
@@ -25,21 +31,30 @@ export class ChunkingService {
 
     return result;
   }
-  private getChunkSize(): number {
-    const chunkSize: number = Number(
-      this.configService.getOrThrow('CHUNK_SIZE_IN_WORDS'),
-    );
 
-    if (chunkSize < 1) {
-      throw new ConfigurationException(
-        'CHUNK_SIZE should be greater than zero',
-      );
+  chunkBySizeWithOverlap(texts: string[], fileName: string): Document[] {
+    const chunks: Document[] = [];
+
+    for (let i: number = 0; i < texts.length; i++) {
+      const currentText: string = texts[i];
+
+      if (currentText && currentText.trim() !== '') {
+        const textParts: string[] =
+          this.chunkOneTextBySizeWithOverlap(currentText);
+
+        for (const textPart of textParts) {
+          const chunk: Document = new Document({ pageContent: textPart });
+          chunk.metadata.docTitle = fileName;
+          chunk.metadata.page = i + 1;
+          chunks.push(chunk);
+        }
+      }
     }
 
-    return chunkSize;
+    return chunks;
   }
 
-  chunkBySizeWithOverlap(text: string): string[] {
+  private chunkOneTextBySizeWithOverlap(text: string): string[] {
     const chunkSize: number = this.getChunkSize();
     const overlap: number = this.getOverlap(chunkSize);
 
@@ -56,6 +71,21 @@ export class ChunkingService {
 
     return result;
   }
+
+  private getChunkSize(): number {
+    const chunkSize: number = Number(
+      this.configService.getOrThrow('CHUNK_SIZE_IN_WORDS'),
+    );
+
+    if (chunkSize < 1) {
+      throw new ConfigurationException(
+        'CHUNK_SIZE should be greater than zero',
+      );
+    }
+
+    return chunkSize;
+  }
+
   private getOverlap(chunkSize: number): number {
     const overlap: number = Number(
       this.configService.getOrThrow('CHUNK_OVERLAP_IN_WORDS'),

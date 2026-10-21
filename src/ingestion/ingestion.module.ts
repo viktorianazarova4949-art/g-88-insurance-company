@@ -7,7 +7,7 @@ import { CleanService } from './clean.service';
 import { ChunkingService } from './chunking.service';
 import { DocxExtractor } from './extractors/docx.extractor';
 import { PdfExtractor } from './extractors/pdf.extractor';
-import { MultiformatExtractor } from './extractors/multiformat.extractor';
+import {MultiformatExtractor} from './extractors/multiformat.extractor';
 
 @Module({
   controllers: [IngestionController],

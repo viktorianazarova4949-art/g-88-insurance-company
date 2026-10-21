@@ -5,5 +5,6 @@ import { OpenAiClient } from './clients/openai.client';
 
 @Module({
   providers: [AiService, GeminiClient, OpenAiClient],
+  exports:[AiService],
 })
 export class AiModule {}
