@@ -4,6 +4,7 @@ import { CleanService } from './clean.service';
 import { ChunkingService } from './chunking.service';
 import { MultiformatExtractor } from './extractors/multiformat.extractor';
 import { Document } from 'langchain';
+import { IngestDocumentDto } from './dto/ingest-document.dto';
 
 @Injectable()
 export class IngestionService {
@@ -14,24 +15,24 @@ export class IngestionService {
     private readonly chunkingService: ChunkingService,
   ) {}
 
-  async ingest(file: Express.Multer.File): Promise<void> {
+  async ingest(
+    file: Express.Multer.File,
+    ingestDocumentDto: IngestDocumentDto,
+  ): Promise<void> {
     // прочитать текст из переданного файла
     const pages: string[] = await this.multiformatExtractor.extract(file);
 
-    // // очистить файл от мусора (лишние пробелы)
+    // очистить файл от мусора (лишние пробелы)
     const cleanedPages: string[] = this.cleanService.cleanTexts(pages);
 
-   // console.log(cleanedPages);
-
-    // // разбить очищенный текст на чанки
+    // разбить очищенный текст на чанки
     const chunks: Document[] = this.chunkingService.chunkBySizeWithOverlap(
       cleanedPages,
-      file.originalname
+      file.originalname,
+      ingestDocumentDto,
     );
 
-    //console.log(chunks);
-
-    // // полученные чанки передать в storageService для сохранения в БД
+    // полученные чанки передать в storageService для сохранения в БД
     await this.storageService.saveToDb(chunks);
   }
 }

@@ -7,6 +7,7 @@ import {
 import { Reflector } from '@nestjs/core';
 import { AuthService } from '../auth.service';
 import { IS_PUBLIC_KEY } from '../types/auth.decorators';
+import { AuthenticatedRequest } from '../types/authenticated-request';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -25,8 +26,11 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    const request: any = context.switchToHttp().getRequest();
-    const authHeader: string = request.headers['authorization'];
+    const request: AuthenticatedRequest = context
+      .switchToHttp()
+      .getRequest<AuthenticatedRequest>();
+
+    const authHeader: string | undefined = request.headers['authorization'];
 
     if (!authHeader) {
       throw new UnauthorizedException('Unauthorized');

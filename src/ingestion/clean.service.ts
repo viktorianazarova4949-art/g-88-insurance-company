@@ -2,9 +2,10 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class CleanService {
-  cleanTexts(texts: string[]): string[]{
+  cleanTexts(texts: string[]): string[] {
     return texts.map((t: string): string => this.cleanText(t));
   }
+
   private cleanText(text: string): string {
     text = this.normalizeLineEndings(text);
     text = this.collapseSpaces(text);
@@ -19,12 +20,10 @@ export class CleanService {
     return text;
   }
 
-  //приведения не стандартных строк в стандартные
   private normalizeLineEndings(text: string): string {
     return text.replace(/\r\n?/g, '\n');
   }
 
-  //схлопывает обычные пробелы
   private collapseSpaces(text: string): string {
     return text.replace(/ +/g, ' ').trim();
   }
@@ -53,7 +52,7 @@ export class CleanService {
   private removeHorizontalLines(text: string): string {
     return text.replace(/^\s*—+\s*$/gm, '');
   }
-// удалить лишние переносы строк
+
   private collapseEmptyLines(text: string): string {
     return text.replace(/\n{3,}/g, '\n\n');
   }

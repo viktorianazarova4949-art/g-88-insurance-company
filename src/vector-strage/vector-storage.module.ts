@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { QdrantClient } from '@qdrant/js-client-rest';
 import { QdrantVectorStore } from '@langchain/qdrant';
 import { GoogleGenerativeAIEmbeddings } from '@langchain/google-genai';
+import { FilterService } from './filter.service';
 
 // Вариант для OpenAI
 // import { OpenAIEmbeddings } from '@langchain/openai';
@@ -12,6 +13,7 @@ import { GoogleGenerativeAIEmbeddings } from '@langchain/google-genai';
 @Module({
   providers: [
     VectorStorageService,
+    FilterService,
     {
       provide: GoogleGenerativeAIEmbeddings,
       useFactory: (configService: ConfigService) => {

@@ -1,42 +1,44 @@
 import { Injectable } from '@nestjs/common';
 import { VectorStorageService } from '../vector-strage/vector-storage.service';
 import { AiService } from '../ai/ai.service';
+import { PromptService } from './prompt.service';
+import { Role } from '../users/enums/role.enum';
 
 @Injectable()
 export class ChatService {
   constructor(
     private readonly vectorStorageService: VectorStorageService,
     private readonly aiService: AiService,
+    private readonly promptService: PromptService,
   ) {}
 
-  async generateResponse(request: string): Promise<string> {
+  async generateResponse(request: string, userRole: Role): Promise<string> {
+    let prompt: string =
+      this.promptService.createPromptForInsuranceType(request);
+
+    console.log('\nPrompt:\n');
+    console.log(prompt + '\n');
+
+    const insuranceType: string = await this.aiService.generateResponse(prompt);
+
+    console.log('\nInsurance type:\n');
+    console.log(insuranceType + '\n');
+
     const relevantChunks: string[] =
-      await this.vectorStorageService.getRelevantChunks(request);
+      await this.vectorStorageService.getRelevantChunks(
+        request,
+        insuranceType,
+        userRole,
+      );
 
-    console.log('Question:');
-    console.log(request + '\n');
-    console.log('Relevant chunks:' + '\n');
-    relevantChunks.forEach((c: string): void => console.log(c + '\n'));
+    prompt = this.promptService.createPromptForUserRequest(
+      relevantChunks,
+      request,
+    );
 
-    const prompt: string = this.createPrompt(relevantChunks, request);
-
-    console.log('\nCreated prompt:\n');
+    console.log('\nPrompt:\n');
     console.log(prompt + '\n');
 
     return this.aiService.generateResponse(prompt);
-  }
-
-  private createPrompt(chunks: string[], request: string): string {
-    return `Сгенерируй ответ, основываясь только на предоставленном контексте.
-Дай только ответ, не упоминай в ответе контекст.
-
-Контекст:
-
-${chunks.join('\n\n')}
-
-Конец контекста.
-
-Вопрос:
-${request}`;
   }
 }
