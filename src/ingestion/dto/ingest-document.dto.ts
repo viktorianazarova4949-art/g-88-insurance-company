@@ -1,4 +1,11 @@
-import { IsArray, IsBoolean, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsInt,
+  IsNotEmpty,
+  IsString,
+  Min,
+} from 'class-validator';
 import { Transform, TransformFnParams } from 'class-transformer';
 
 export class IngestDocumentDto {
@@ -19,12 +26,26 @@ export class IngestDocumentDto {
   @IsNotEmpty()
   language: string;
 
-  @Transform(({value}:TransformFnParams): boolean|string=>{
-    if(value=== 'false'){
+  @Transform(({ value }: TransformFnParams): boolean | string => {
+    if (value === 'true') {
+      return true;
+    }
+
+    if (value === 'false') {
       return false;
     }
-      return value;
+
+    return value;
   })
   @IsBoolean()
   publicAccess: boolean;
+  
+  @IsString()
+  @IsNotEmpty()
+  documentId: string;
+  
+  @Transform(({ value }: TransformFnParams): number => Number(value))
+  @IsInt()
+  @Min(1)
+  documentVersion: number;
 }

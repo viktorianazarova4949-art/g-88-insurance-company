@@ -3,6 +3,7 @@ import { AiChatRequestDto } from './dto/ai-chat-request.dto';
 import { ChatService } from './chat.service';
 import type { AuthenticatedRequest } from '../auth/types/authenticated-request';
 
+
 @Controller('chat')
 export class ChatController {
   constructor(private readonly service: ChatService) {}
@@ -15,7 +16,7 @@ export class ChatController {
   ): Promise<string> {
     return this.service.generateResponse(
       chatRequestDto.message,
-      request.user.role,
+      request.user,
     );
   }
 }

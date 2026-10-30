@@ -13,6 +13,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AiModule } from './ai/ai.module';
 import { IngestionModule } from './ingestion/ingestion.module';
 import { VectorStorageModule } from './vector-strage/vector-storage.module';
+import { ChatModule } from './chat/chat.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { VectorStorageModule } from './vector-strage/vector-storage.module';
     IngestionModule,
     VectorStorageModule,
     CarsModule,
+    ChatModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',

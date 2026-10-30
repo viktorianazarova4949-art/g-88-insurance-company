@@ -73,7 +73,10 @@ export class ChunkingService {
     chunk.metadata.page = pageNumber;
     chunk.metadata.insuranceType = ingestDocumentDto.insuranceType;
     chunk.metadata.departments = ingestDocumentDto.departments;
+    chunk.metadata.language = ingestDocumentDto.language;
     chunk.metadata.publicAccess = ingestDocumentDto.publicAccess;
+    chunk.metadata.documentId = ingestDocumentDto.documentId;
+    chunk.metadata.documentVersion = ingestDocumentDto.documentVersion;
     return chunk;
   }
 
